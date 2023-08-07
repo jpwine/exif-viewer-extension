@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Image Selector</title>
+</head>
+<body>
+  <div style="width: 30em">
+    <div style="display: block; margin: 0.5em auto; width: 27em">
+      <table style="margin: 0px auto; border-collapse: separate; border-spacing: 10px 5px; cursor: pointer;">
+      <tbody>
+      <tr>
+        <td>
+          <p style="display: inline">
+            <span style="vertical-align: middle;">List Size:</span>
+            <input id="listSize" type='text' value="20" maxlength="3" minlength="1" style="width: 2.5em; text-align: right; vertical-align: middle;"/>
+          </p>
+        </td>
+        <td>
+          <p id="sortSwitch" style="display: inline">
+            <span style="vertical-align: middle;">Sort Type:</span>
+            <span id="sortType" style="display: none">0</span>
+            <span id="sortStatusH" style="color: #222">H</span>
+            <span id="sortStatusX" style="color: #555">x</span>
+            <span id="sortStatusW" style="color: #222">W</span>
+          </p>
+        </td>
+        <td>
+          <button id="scanButton"
+                  style="border: none; width: 2.3em; height: 1.9em; text-align: center; vertical-align: middle; background-color: #9dd; cursor: pointer;">&#x1F50D;</button>
+        </td>
+      </tr>
+      </tbody>
+      </table>
+    </div>
+    <div id="listPlaceholder" style="display: none; height: 15em;">
+      <table id="listTable" style="margin: 0px auto; border-collapse: separate; border-spacing: 5px;">
+      </table>
+    </div>
+  </div>
+  <script src="popup.js"></script>
+</body>
+</html>

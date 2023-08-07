@@ -1,0 +1,36 @@
+{
+    "manifest_version": 3,
+    "name": "Exif Viewer",
+    "version": "0.9.0",
+    "description": "画像のExif情報をポップアップ表示する",
+    "background": {
+        "service_worker": "background.js"
+    },
+    "icons": {
+    //    "16": "images/icon16.png",
+    //    "48": "images/icon48.png",
+        "128": "images/ev_128.png"
+    },
+    "permissions": [
+        "activeTab",
+        "contextMenus",
+        "scripting",
+        "tabs"
+    ],
+    "action": {
+        "default_popup": "popup.html",
+        "default_icon": "images/ev_128.png"
+    },
+    "content_scripts": [
+        {
+            "matches": ["*://*/*"],
+            "js": ["content.js"]
+        }
+    ],
+    "web_accessible_resources": [
+        {
+            "resources": ["ExifReader-src/*"],
+            "matches": ["<all_urls>"]
+        }
+    ]
+}
