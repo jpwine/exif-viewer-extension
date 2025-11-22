@@ -1,2 +1,31 @@
+# Build outputs
 *.zip
+extension.zip
+
+# WASM build artifacts
+wasm/exif-parser.wasm
+wasm/wasm_exec.js
+
+# OS files
 .DS_Store
+Thumbs.db
+
+# Editor files
+*.swp
+*.swo
+*~
+.vscode/
+.idea/
+
+# Old backup files
+*.old
+*.old.*
+*.backup
+*.bak
+*-old.*
+*-backup.*
+test-*.html
+test-*.wasm
+
+# Go
+wasm/go.sum

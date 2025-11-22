@@ -1,43 +1,201 @@
 <!DOCTYPE html>
-<html>
+<html lang="ja">
 <head>
-  <meta charset="UTF-8">
-  <title>Image Selector</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EXIF Viewer</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica', 'Arial', sans-serif;
+            width: 400px;
+            min-height: 200px;
+            background-color: #ffffff;
+            color: #333;
+        }
+
+        .header {
+            padding: 16px;
+            background-color: #4a90e2;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .header h1 {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .controls {
+            padding: 16px;
+            background-color: #f8f9fa;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .control-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .control-row:last-child {
+            margin-bottom: 0;
+        }
+
+        label {
+            font-size: 14px;
+            font-weight: 500;
+            min-width: 80px;
+        }
+
+        select, input {
+            flex: 1;
+            padding: 6px 10px;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        button {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background-color: #4a90e2;
+            color: white;
+            width: 100%;
+        }
+
+        .btn-primary:hover {
+            background-color: #357abd;
+        }
+
+        .btn-primary:active {
+            transform: scale(0.98);
+        }
+
+        .image-list {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .image-item {
+            padding: 12px 16px;
+            border-bottom: 1px solid #e9ecef;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: background-color 0.2s;
+        }
+
+        .image-item:hover {
+            background-color: #f8f9fa;
+        }
+
+        .image-item:active {
+            background-color: #e9ecef;
+        }
+
+        .image-size {
+            font-family: 'Courier New', monospace;
+            font-weight: 600;
+            color: #495057;
+            min-width: 120px;
+            text-align: right;
+        }
+
+        .image-name {
+            margin-left: 12px;
+            flex: 1;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            font-size: 14px;
+            color: #333;
+        }
+
+        .loading {
+            padding: 20px;
+            text-align: center;
+            color: #6c757d;
+        }
+
+        .empty {
+            padding: 40px 20px;
+            text-align: center;
+            color: #adb5bd;
+        }
+
+        .error {
+            padding: 16px;
+            margin: 16px;
+            background-color: #f8d7da;
+            color: #721c24;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        /* Scrollbar styles */
+        .image-list::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .image-list::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+
+        .image-list::-webkit-scrollbar-thumb {
+            background: #adb5bd;
+            border-radius: 4px;
+        }
+
+        .image-list::-webkit-scrollbar-thumb:hover {
+            background: #6c757d;
+        }
+    </style>
 </head>
 <body>
-  <div style="width: 30em">
-    <div style="display: block; margin: 0.5em auto; width: 27em">
-      <table style="margin: 0px auto; border-collapse: separate; border-spacing: 10px 5px; cursor: pointer;">
-      <tbody>
-      <tr>
-        <td>
-          <p style="display: inline">
-            <span style="vertical-align: middle;">List Size:</span>
-            <input id="listSize" type='text' value="20" maxlength="3" minlength="1" style="width: 2.5em; text-align: right; vertical-align: middle;"/>
-          </p>
-        </td>
-        <td>
-          <p id="sortSwitch" style="display: inline">
-            <span style="vertical-align: middle;">Sort Type:</span>
-            <span id="sortType" style="display: none">0</span>
-            <span id="sortStatusH" style="color: #222">H</span>
-            <span id="sortStatusX" style="color: #555">x</span>
-            <span id="sortStatusW" style="color: #222">W</span>
-          </p>
-        </td>
-        <td>
-          <button id="scanButton"
-                  style="border: none; width: 2.3em; height: 1.9em; text-align: center; vertical-align: middle; background-color: #9dd; cursor: pointer;">&#x1F50D;</button>
-        </td>
-      </tr>
-      </tbody>
-      </table>
+    <div class="header">
+        <h1>EXIF Viewer</h1>
     </div>
-    <div id="listPlaceholder" style="display: none; height: 15em;">
-      <table id="listTable" style="margin: 0px auto; border-collapse: separate; border-spacing: 5px;">
-      </table>
+
+    <div class="controls">
+        <div class="control-row">
+            <label for="maxImages">表示件数:</label>
+            <input type="number" id="maxImages" value="20" min="1" max="100">
+        </div>
+
+        <div class="control-row">
+            <label for="sortType">並び順:</label>
+            <select id="sortType">
+                <option value="0">面積 (H×W)</option>
+                <option value="1">高さ (H)</option>
+                <option value="2">幅 (W)</option>
+            </select>
+        </div>
+
+        <div class="control-row">
+            <button id="scanButton" class="btn-primary">🔍 画像をスキャン</button>
+        </div>
     </div>
-  </div>
-  <script src="popup.js"></script>
+
+    <div id="imageList" class="image-list"></div>
+
+    <script src="popup.js" type="module"></script>
 </body>
 </html>

@@ -1,8 +1,8 @@
 {
     "manifest_version": 3,
     "name": "Exif Viewer",
-    "version": "0.9.0",
-    "description": "画像のExif情報をポップアップ表示する",
+    "version": "1.0.0",
+    "description": "画像のExif情報をポップアップ表示する (WASM版)",
     "background": {
         "service_worker": "background.js"
     },
@@ -12,8 +12,13 @@
     "permissions": [
         "activeTab",
         "contextMenus",
-        "tabs"
+        "tabs",
+        "storage"
     ],
+    "content_security_policy": {
+        "extension_pages": "script-src 'self' 'wasm-unsafe-eval'; object-src 'self'",
+        "sandbox": "sandbox allow-scripts allow-forms allow-popups allow-modals; script-src 'self' 'unsafe-inline' 'unsafe-eval' 'wasm-unsafe-eval'; child-src 'self'"
+    },
     "action": {
         "default_popup": "popup.html",
         "default_icon": "images/ev_128.png"
@@ -26,7 +31,10 @@
     ],
     "web_accessible_resources": [
         {
-            "resources": ["ExifReader-src/*"],
+            "resources": [
+                "wasm/*",
+                "ui/*"
+            ],
             "matches": ["<all_urls>"]
         }
     ]
