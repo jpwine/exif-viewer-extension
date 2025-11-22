@@ -1,78 +1,193 @@
-const rootDiv = document.getElementById('listPlaceholder');
-const rootTable = document.getElementById('listTable');
-const listSize = document.getElementById('listSize');
-const sortType = document.getElementById('sortType');
-const sortStatusH = document.getElementById('sortStatusH');
-const sortStatusX = document.getElementById('sortStatusX');
-const sortStatusW = document.getElementById('sortStatusW');
-const regexGetFilename = /[^/]+$/;
+/**
+ * Popup Script
+ * Handles the extension popup UI
+ */
 
-document.getElementById("sortSwitch").addEventListener('click', (event) => {
-    event.preventDefault();
-    sortType.innerHTML = (sortType.innerHTML+1)%3;
-    switch (parseInt(sortType.innerHTML)) {
-    case 0:
-        sortStatusH.style.color = "#222";
-        sortStatusX.style.color = "#555";
-        sortStatusW.style.color = "#222";
-        break;
-    case 1:
-        sortStatusH.style.color = "#222";
-        sortStatusX.style.color = "#BBB";
-        sortStatusW.style.color = "#BBB";
-        break;
-    case 2:
-        sortStatusH.style.color = "#BBB";
-        sortStatusX.style.color = "#BBB";
-        sortStatusW.style.color = "#222";
-        break;
-    }
-});
+// DOM elements
+const scanButton = document.getElementById('scanButton');
+const imageList = document.getElementById('imageList');
+const maxImagesInput = document.getElementById('maxImages');
+const sortTypeSelect = document.getElementById('sortType');
 
-document.getElementById("scanButton").addEventListener('click', (event) => {
-    event.preventDefault();
+/**
+ * Show loading state
+ */
+function showLoading() {
+    imageList.innerHTML = '<div class="loading">画像をスキャン中...</div>';
+}
+
+/**
+ * Show empty state
+ */
+function showEmpty() {
+    imageList.innerHTML = '<div class="empty">画像が見つかりませんでした</div>';
+}
+
+/**
+ * Show error message
+ * @param {string} message
+ */
+function showError(message) {
+    imageList.innerHTML = `<div class="error">${message}</div>`;
+}
+
+/**
+ * Clear image list
+ */
+function clearList() {
+    imageList.innerHTML = '';
+}
+
+/**
+ * Create image list item
+ * @param {Object} imageData
+ * @returns {HTMLElement}
+ */
+function createImageItem(imageData) {
+    const item = document.createElement('div');
+    item.className = 'image-item';
+
+    const sizeSpan = document.createElement('span');
+    sizeSpan.className = 'image-size';
+    sizeSpan.textContent = `${imageData.height} × ${imageData.width}`;
+
+    const nameSpan = document.createElement('span');
+    nameSpan.className = 'image-name';
+    nameSpan.textContent = imageData.filename;
+    nameSpan.title = imageData.src;
+
+    item.appendChild(sizeSpan);
+    item.appendChild(nameSpan);
+
+    // Click handler
+    item.addEventListener('click', () => {
+        handleImageClick(imageData.src);
+    });
+
+    return item;
+}
+
+/**
+ * Handle image click
+ * @param {string} imageUrl
+ */
+function handleImageClick(imageUrl) {
     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-        var port = chrome.tabs.connect(tabs[0].id, {name: `VCA_nkz7rhj_rge6gcz`});
-        if (rootTable.childElementCount>0) {
-            while (rootTable.firstChild) {
-                rootTable.removeChild(rootTable.firstChild);
-            }
+        if (tabs[0]) {
+            // Send message to content script to show EXIF modal
+            chrome.tabs.sendMessage(tabs[0].id, {
+                action: 'showExif',
+                url: imageUrl,
+            });
         }
-        const tBody = document.createElement('tbody');
-        Object.assign(rootDiv.style, { display: "block", "overflow-y": "auto" });
-        rootTable.append(tBody);
-        port.postMessage({state: "ping", listSize: listSize.value, sortType: sortType.innerHTML});
-        port.onMessage.addListener(function(msg) {
-            switch (msg.state) {
-            case "pong":
-                const elemTr = document.createElement('tr');
-                const elemTD1 = document.createElement('td');
-                const elemTD2 = document.createElement('td');
-                const elemSrc1 = document.createElement('p');
-                const elemSrc2 = document.createElement('p');
-                elemTr.style.cursor = "pointer";
-                elemTr.append(elemTD1);
-                elemTr.append(elemTD2);
-                elemTD1.innerHTML = msg.imgSize;
-                elemTD1.style.textAlign = "right";
-                elemTD2.innerHTML = msg.imgSrc.match(regexGetFilename)[0];
-                elemSrc1.innerHTML = msg.imgSrc;
-                elemSrc1.style.display = "none";
-                elemSrc2.innerHTML = msg.imgSrc;
-                elemSrc2.style.display = "none";
-                elemTD1.append(elemSrc1);
-                elemTD2.append(elemSrc2);
-                tBody.append(elemTr);
-                elemTr.addEventListener('click', (evt) => {
-                    evt.preventDefault();
-                    const srcUrl = evt.target.getElementsByTagName('p')[0].innerHTML;
-                    let sndMsgPromise = chrome.tabs.sendMessage(tabs[0].id, { action: "fd0cb59b8ef1", url: srcUrl });
-                });
-                break;
-            case "over":
+    });
+}
+
+/**
+ * Scan page for images
+ */
+function scanImages() {
+    showLoading();
+
+    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+        if (!tabs[0]) {
+            showError('アクティブなタブが見つかりません');
+            return;
+        }
+
+        const maxResults = parseInt(maxImagesInput.value) || 20;
+        const sortType = parseInt(sortTypeSelect.value) || 0;
+
+        // Connect to content script
+        const port = chrome.tabs.connect(tabs[0].id, {
+            name: 'exif-viewer-image-scan',
+        });
+
+        const images = [];
+        let hasError = false;
+
+        // Listen for messages
+        port.onMessage.addListener((msg) => {
+            if (msg.type === 'image') {
+                images.push(msg.data);
+            } else if (msg.type === 'complete') {
                 port.disconnect();
-                break;
+
+                // Display results
+                if (images.length === 0) {
+                    showEmpty();
+                } else {
+                    clearList();
+                    images.forEach(imageData => {
+                        const item = createImageItem(imageData);
+                        imageList.appendChild(item);
+                    });
+                }
             }
         });
+
+        // Handle errors
+        port.onDisconnect.addListener(() => {
+            if (chrome.runtime.lastError) {
+                if (!hasError && images.length === 0) {
+                    showError('ページとの通信に失敗しました');
+                }
+                hasError = true;
+            }
+        });
+
+        // Send scan request
+        port.postMessage({
+            action: 'scan',
+            maxResults: maxResults,
+            sortType: sortType,
+        });
     });
-});
+}
+
+/**
+ * Initialize popup
+ */
+function init() {
+    // Scan button click handler
+    scanButton.addEventListener('click', () => {
+        scanImages();
+    });
+
+    // Enter key in max images input
+    maxImagesInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            scanImages();
+        }
+    });
+
+    // Sort type change
+    sortTypeSelect.addEventListener('change', () => {
+        if (imageList.children.length > 0 && !imageList.querySelector('.empty, .loading, .error')) {
+            // Re-scan with new sort type
+            scanImages();
+        }
+    });
+
+    // Load saved preferences
+    chrome.storage.sync.get(['maxImages', 'sortType'], (result) => {
+        if (result.maxImages) {
+            maxImagesInput.value = result.maxImages;
+        }
+        if (result.sortType !== undefined) {
+            sortTypeSelect.value = result.sortType;
+        }
+    });
+
+    // Save preferences on change
+    maxImagesInput.addEventListener('change', () => {
+        chrome.storage.sync.set({ maxImages: maxImagesInput.value });
+    });
+
+    sortTypeSelect.addEventListener('change', () => {
+        chrome.storage.sync.set({ sortType: sortTypeSelect.value });
+    });
+}
+
+// Initialize on load
+init();
