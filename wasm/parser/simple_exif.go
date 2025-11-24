@@ -13,6 +13,8 @@ type SimpleExifParser struct{}
 
 // EXIF tag IDs
 const (
+	// IFD0 tags (basic image info)
+	tagImageDescription  = 0x010E
 	tagMake              = 0x010F
 	tagModel             = 0x0110
 	tagOrientation       = 0x0112
@@ -21,6 +23,8 @@ const (
 	tagResolutionUnit    = 0x0128
 	tagSoftware          = 0x0131
 	tagDateTime          = 0x0132
+	tagArtist            = 0x013B
+	tagCopyright         = 0x8298
 	tagExifIFDPointer    = 0x8769
 	tagGPSInfoIFDPointer = 0x8825
 
@@ -32,9 +36,14 @@ const (
 	tagDateTimeDigitized  = 0x9004
 	tagFocalLength        = 0x920A
 	tagFlash              = 0x9209
+	tagUserComment        = 0x9286
+	tagImageUniqueID      = 0xA420
 	tagWhiteBalance       = 0xA403
+	tagCameraOwnerName    = 0xA430
+	tagBodySerialNumber   = 0xA431
 	tagLensMake           = 0xA433
 	tagLensModel          = 0xA434
+	tagLensSerialNumber   = 0xA435
 
 	// GPS tags
 	tagGPSLatitudeRef  = 0x0001
@@ -285,6 +294,32 @@ func (p *SimpleExifParser) parseTag(tag uint16, dataType uint16, count uint32, o
 				}
 			}
 		}
+
+	case 7: // UNDEFINED (used by UserComment)
+		// Special handling for UserComment tag (0x9286)
+		if tag == tagUserComment && count > 8 {
+			valueOffset := int(byteOrder.Uint32(data[offset : offset+4]))
+			if valueOffset+int(count) <= len(data) {
+				commentData := data[valueOffset : valueOffset+int(count)]
+				// First 8 bytes indicate character code
+				// "ASCII\x00\x00\x00" = ASCII
+				// "JIS\x00\x00\x00\x00\x00" = JIS
+				// "UNICODE\x00" = Unicode
+				// "\x00\x00\x00\x00\x00\x00\x00\x00" = Undefined
+				if len(commentData) > 8 {
+					charset := string(bytes.TrimRight(commentData[0:8], "\x00"))
+					commentText := commentData[8:]
+
+					// Remove null bytes and convert to string
+					value = string(bytes.TrimRight(commentText, "\x00"))
+
+					// Add charset info if not ASCII or undefined
+					if charset != "" && charset != "ASCII" {
+						value = fmt.Sprintf("%s (charset: %s)", value, charset)
+					}
+				}
+			}
+		}
 	}
 
 	if value == "" {
@@ -294,6 +329,9 @@ func (p *SimpleExifParser) parseTag(tag uint16, dataType uint16, count uint32, o
 	// Map tag to name
 	var tagName string
 	switch tag {
+	// IFD0 tags
+	case tagImageDescription:
+		tagName = "ImageDescription"
 	case tagMake:
 		tagName = "Make"
 	case tagModel:
@@ -304,6 +342,11 @@ func (p *SimpleExifParser) parseTag(tag uint16, dataType uint16, count uint32, o
 		tagName = "Software"
 	case tagDateTime:
 		tagName = "DateTime"
+	case tagArtist:
+		tagName = "Artist"
+	case tagCopyright:
+		tagName = "Copyright"
+	// EXIF Sub-IFD tags
 	case tagExposureTime:
 		tagName = "ExposureTime"
 	case tagFNumber:
@@ -318,12 +361,22 @@ func (p *SimpleExifParser) parseTag(tag uint16, dataType uint16, count uint32, o
 		tagName = "FocalLength"
 	case tagFlash:
 		tagName = "Flash"
+	case tagUserComment:
+		tagName = "UserComment"
+	case tagImageUniqueID:
+		tagName = "ImageUniqueID"
 	case tagWhiteBalance:
 		tagName = "WhiteBalance"
+	case tagCameraOwnerName:
+		tagName = "CameraOwnerName"
+	case tagBodySerialNumber:
+		tagName = "BodySerialNumber"
 	case tagLensMake:
 		tagName = "LensMake"
 	case tagLensModel:
 		tagName = "LensModel"
+	case tagLensSerialNumber:
+		tagName = "LensSerialNumber"
 	case tagExifIFDPointer:
 		// Parse EXIF sub-IFD
 		valueOffset := int(byteOrder.Uint32(data[offset : offset+4]))
