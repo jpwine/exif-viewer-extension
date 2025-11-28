@@ -128,11 +128,7 @@ func (p *SimpleExifParser) Parse(data []byte) (ExifData, error) {
 			} else if len(segmentData) >= 29 && string(segmentData[0:29]) == "http://ns.adobe.com/xap/1.0/\x00" {
 				// XMP metadata
 				xmpData := string(segmentData[29:])
-				if len(xmpData) > 200 {
-					exifData["XMP_Metadata"] = xmpData[:200] + "... (truncated)"
-				} else {
-					exifData["XMP_Metadata"] = xmpData
-				}
+				exifData["XMP_Metadata"] = xmpData
 			} else if len(segmentData) > 0 {
 				exifData["APP1_Data"] = fmt.Sprintf("(%d bytes)", len(segmentData))
 			}
@@ -152,11 +148,7 @@ func (p *SimpleExifParser) Parse(data []byte) (ExifData, error) {
 			key := fmt.Sprintf("APP%d_Data", appNum)
 			// Try to detect text content
 			if p.isPrintable(segmentData) && len(segmentData) > 0 {
-				if len(segmentData) > 200 {
-					exifData[key] = string(segmentData[:200]) + "... (truncated)"
-				} else {
-					exifData[key] = string(segmentData)
-				}
+				exifData[key] = string(segmentData)
 			} else {
 				exifData[key] = fmt.Sprintf("(%d bytes binary)", len(segmentData))
 			}
@@ -177,11 +169,7 @@ func (p *SimpleExifParser) Parse(data []byte) (ExifData, error) {
 
 		case 0xEF: // APP15
 			if p.isPrintable(segmentData) && len(segmentData) > 0 {
-				if len(segmentData) > 200 {
-					exifData["APP15_Data"] = string(segmentData[:200]) + "... (truncated)"
-				} else {
-					exifData["APP15_Data"] = string(segmentData)
-				}
+				exifData["APP15_Data"] = string(segmentData)
 			} else {
 				exifData["APP15_Data"] = fmt.Sprintf("(%d bytes binary)", len(segmentData))
 			}
