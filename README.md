@@ -21,9 +21,9 @@
 - JPEG (完全対応)
 - TIFF (完全対応)
 - WebP (EXIF, XMP, ICC Profile, Animation対応) ✨ NEW
+- PNG (EXIF, テキストメタデータ, ICC Profile対応) ✨ NEW (v1.1.0)
 
 ### 将来対応予定の形式
-- PNG
 - HEIF/HEIC
 
 ## インストール方法
@@ -136,9 +136,9 @@ exif-viewer-extension/
 │   ├── main.go            # Goエントリーポイント
 │   ├── parser/            # パーサー実装
 │   │   ├── parser.go      # パーサーインターフェース
-│   │   ├── exif.go        # EXIF解析 (JPEG/TIFF)
-│   │   ├── png.go         # PNG (将来対応)
-│   │   ├── webp.go        # WebP (将来対応)
+│   │   ├── simple_exif.go # EXIF解析 (JPEG/TIFF)
+│   │   ├── png.go         # PNG (v1.1.0で対応完了)
+│   │   ├── webp.go        # WebP (対応済み)
 │   │   └── heif.go        # HEIF (将来対応)
 │   ├── loader.js          # WASMローダー
 │   ├── exif-parser.wasm   # ビルド済みWASM (git管理外)

@@ -69,11 +69,7 @@ func (p *WebPParser) Parse(data []byte) (ExifData, error) {
 		case "XMP ":
 			// XMP metadata (XML format)
 			xmpData := string(chunkData)
-			if len(xmpData) > 200 {
-				exifData["XMP_Metadata"] = xmpData[:200] + "... (truncated)"
-			} else {
-				exifData["XMP_Metadata"] = xmpData
-			}
+			exifData["XMP_Metadata"] = xmpData
 
 		case "VP8X":
 			// Extended header - contains feature flags
