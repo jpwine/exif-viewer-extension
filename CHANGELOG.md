@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.2.0] - 2026-09-12
 
+### Added
+- **i18n scaffolding (English + Japanese)**: added `_locales/en/messages.json` and `_locales/ja/messages.json`, and set `"default_locale": "en"` in `manifest.json`. All user-facing strings (popup labels/buttons/states, context menu title, modal aria-labels, EXIF section headers and summary labels, error messages) now go through `chrome.i18n.getMessage()` instead of being hard-coded in Japanese. Chrome's built-in locale matching means the browser's Japanese UI language shows Japanese, and any other UI language falls back to English — no custom language-switch logic needed.
+- `packing.sh` now bundles `_locales/` into `extension.zip`.
+
 ### Fixed (design issues)
 - **Cross-origin image fetch could fail on most sites**: `background.js` fetches image bytes directly in the service worker, but `manifest.json` declared no `host_permissions`. Without it, `fetch()` there is bound by the same CORS rules as a normal page and errors out on any image host that doesn't send permissive CORS headers — silently defeating the extension's core purpose on much of the web. Added `"host_permissions": ["<all_urls>"]`.
 - **Overly broad `tabs` permission**: nothing in the code needs more than `activeTab` (tab access is always initiated by a user gesture — a popup click or the context menu). Removed `tabs`, ironic to request given the extension's own "everything stays local" positioning.
