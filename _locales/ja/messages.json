@@ -1,0 +1,132 @@
+{
+    "extName": {
+        "message": "EXIF Viewer",
+        "description": "Extension name"
+    },
+    "extDescription": {
+        "message": "画像のExif情報をポップアップ表示する (WASM版)",
+        "description": "Extension description"
+    },
+    "contextMenuTitle": {
+        "message": "EXIF情報を見る",
+        "description": "Right-click context menu item on images"
+    },
+    "popupTitle": {
+        "message": "EXIF Viewer",
+        "description": "Popup window title / header"
+    },
+    "maxImagesLabel": {
+        "message": "表示件数",
+        "description": "Label for the max results number input in the popup"
+    },
+    "sortTypeLabel": {
+        "message": "並び順",
+        "description": "Label for the sort type select in the popup"
+    },
+    "sortByArea": {
+        "message": "面積 (H×W)",
+        "description": "Sort option: by area"
+    },
+    "sortByHeight": {
+        "message": "高さ (H)",
+        "description": "Sort option: by height"
+    },
+    "sortByWidth": {
+        "message": "幅 (W)",
+        "description": "Sort option: by width"
+    },
+    "scanButton": {
+        "message": "画像をスキャン",
+        "description": "Button to scan the page for images"
+    },
+    "scanningImages": {
+        "message": "画像をスキャン中...",
+        "description": "Loading state shown while scanning the page"
+    },
+    "noImagesFound": {
+        "message": "画像が見つかりませんでした",
+        "description": "Empty state shown when no images are found on the page"
+    },
+    "noActiveTab": {
+        "message": "アクティブなタブが見つかりません",
+        "description": "Error shown when there is no active browser tab"
+    },
+    "communicationFailed": {
+        "message": "ページとの通信に失敗しました",
+        "description": "Error shown when the port connection to the content script fails"
+    },
+    "exifDisplayError": {
+        "message": "EXIF表示エラー: $MESSAGE$",
+        "description": "Toast shown when the EXIF modal itself fails to load",
+        "placeholders": {
+            "message": {
+                "content": "$1",
+                "example": "UIモジュールの読み込みに失敗しました"
+            }
+        }
+    },
+    "exifModalAriaLabel": {
+        "message": "EXIF情報",
+        "description": "aria-label on the EXIF modal dialog"
+    },
+    "closeButtonAriaLabel": {
+        "message": "閉じる",
+        "description": "aria-label on the modal close button"
+    },
+    "imageLoadError": {
+        "message": "画像の読み込みに失敗しました",
+        "description": "Shown when the image in the modal fails to load"
+    },
+    "loadingExifData": {
+        "message": "EXIF データを読み込み中...",
+        "description": "Loading indicator text while EXIF data is being parsed"
+    },
+    "exifLoadError": {
+        "message": "EXIF データの読み込みに失敗しました",
+        "description": "Default error message when EXIF parsing fails"
+    },
+    "errorLabel": {
+        "message": "エラー:",
+        "description": "Label prefix shown before an error message"
+    },
+    "otherMetadata": {
+        "message": "その他のメタデータ",
+        "description": "Section header for non-EXIF metadata (JFIF, XMP, ICC, etc.)"
+    },
+    "imageInfo": {
+        "message": "画像情報",
+        "description": "Section header for basic image info (file size, MIME type)"
+    },
+    "fileSizeLabel": {
+        "message": "ファイルサイズ",
+        "description": "Row label for file size"
+    },
+    "mimeTypeLabel": {
+        "message": "MIMEタイプ",
+        "description": "Row label for MIME type"
+    },
+    "commentLabel": {
+        "message": "コメント",
+        "description": "Section header for JPEG comment"
+    },
+    "summaryCamera": {
+        "message": "カメラ",
+        "description": "Summary row label: camera make/model"
+    },
+    "summaryDateTaken": {
+        "message": "撮影日時",
+        "description": "Summary row label: date the photo was taken"
+    },
+    "summaryExposure": {
+        "message": "露出設定",
+        "description": "Summary row label: exposure settings"
+    },
+    "summaryFocalLength": {
+        "message": "焦点距離",
+        "description": "Summary row label: focal length"
+    },
+    "summaryGpsCoordinates": {
+        "message": "GPS座標",
+        "description": "Summary row label: GPS coordinates"
+    }
+}

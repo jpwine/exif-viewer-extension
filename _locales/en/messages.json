@@ -1,0 +1,132 @@
+{
+    "extName": {
+        "message": "EXIF Viewer",
+        "description": "Extension name"
+    },
+    "extDescription": {
+        "message": "View comprehensive image metadata (EXIF, XMP, ICC, etc.) locally, without uploading images anywhere.",
+        "description": "Extension description"
+    },
+    "contextMenuTitle": {
+        "message": "View EXIF",
+        "description": "Right-click context menu item on images"
+    },
+    "popupTitle": {
+        "message": "EXIF Viewer",
+        "description": "Popup window title / header"
+    },
+    "maxImagesLabel": {
+        "message": "Max results",
+        "description": "Label for the max results number input in the popup"
+    },
+    "sortTypeLabel": {
+        "message": "Sort by",
+        "description": "Label for the sort type select in the popup"
+    },
+    "sortByArea": {
+        "message": "Area (H×W)",
+        "description": "Sort option: by area"
+    },
+    "sortByHeight": {
+        "message": "Height (H)",
+        "description": "Sort option: by height"
+    },
+    "sortByWidth": {
+        "message": "Width (W)",
+        "description": "Sort option: by width"
+    },
+    "scanButton": {
+        "message": "Scan Images",
+        "description": "Button to scan the page for images"
+    },
+    "scanningImages": {
+        "message": "Scanning images...",
+        "description": "Loading state shown while scanning the page"
+    },
+    "noImagesFound": {
+        "message": "No images found",
+        "description": "Empty state shown when no images are found on the page"
+    },
+    "noActiveTab": {
+        "message": "No active tab found",
+        "description": "Error shown when there is no active browser tab"
+    },
+    "communicationFailed": {
+        "message": "Failed to communicate with the page",
+        "description": "Error shown when the port connection to the content script fails"
+    },
+    "exifDisplayError": {
+        "message": "EXIF display error: $MESSAGE$",
+        "description": "Toast shown when the EXIF modal itself fails to load",
+        "placeholders": {
+            "message": {
+                "content": "$1",
+                "example": "Failed to load UI modules"
+            }
+        }
+    },
+    "exifModalAriaLabel": {
+        "message": "EXIF Information",
+        "description": "aria-label on the EXIF modal dialog"
+    },
+    "closeButtonAriaLabel": {
+        "message": "Close",
+        "description": "aria-label on the modal close button"
+    },
+    "imageLoadError": {
+        "message": "Failed to load image",
+        "description": "Shown when the image in the modal fails to load"
+    },
+    "loadingExifData": {
+        "message": "Loading EXIF data...",
+        "description": "Loading indicator text while EXIF data is being parsed"
+    },
+    "exifLoadError": {
+        "message": "Failed to load EXIF data",
+        "description": "Default error message when EXIF parsing fails"
+    },
+    "errorLabel": {
+        "message": "Error:",
+        "description": "Label prefix shown before an error message"
+    },
+    "otherMetadata": {
+        "message": "Other Metadata",
+        "description": "Section header for non-EXIF metadata (JFIF, XMP, ICC, etc.)"
+    },
+    "imageInfo": {
+        "message": "Image Info",
+        "description": "Section header for basic image info (file size, MIME type)"
+    },
+    "fileSizeLabel": {
+        "message": "File Size",
+        "description": "Row label for file size"
+    },
+    "mimeTypeLabel": {
+        "message": "MIME Type",
+        "description": "Row label for MIME type"
+    },
+    "commentLabel": {
+        "message": "Comment",
+        "description": "Section header for JPEG comment"
+    },
+    "summaryCamera": {
+        "message": "Camera",
+        "description": "Summary row label: camera make/model"
+    },
+    "summaryDateTaken": {
+        "message": "Date Taken",
+        "description": "Summary row label: date the photo was taken"
+    },
+    "summaryExposure": {
+        "message": "Exposure",
+        "description": "Summary row label: exposure settings"
+    },
+    "summaryFocalLength": {
+        "message": "Focal Length",
+        "description": "Summary row label: focal length"
+    },
+    "summaryGpsCoordinates": {
+        "message": "GPS Coordinates",
+        "description": "Summary row label: GPS coordinates"
+    }
+}

@@ -20,7 +20,7 @@ chrome.runtime.onInstalled.addListener(function() {
     const menu = chrome.contextMenus.create({
         type: "normal",
         id: "fd0cb59b8ef1",
-        title: "View EXIF",
+        title: chrome.i18n.getMessage("contextMenuTitle"),
         contexts: ["image"]
     });
 

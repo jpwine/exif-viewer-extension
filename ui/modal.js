@@ -129,7 +129,7 @@ export class Modal {
             attrs: {
                 role: 'dialog',
                 'aria-modal': 'true',
-                'aria-label': 'EXIF情報',
+                'aria-label': chrome.i18n.getMessage('exifModalAriaLabel'),
                 tabindex: '-1',
             },
         });
@@ -166,7 +166,7 @@ export class Modal {
             html: '&times;',
             styles: closeButtonStyle,
             attrs: {
-                'aria-label': '閉じる',
+                'aria-label': chrome.i18n.getMessage('closeButtonAriaLabel'),
                 type: 'button',
             },
         });
@@ -197,7 +197,7 @@ export class Modal {
 
         img.addEventListener('error', () => {
             clearElement(this.imageContainer);
-            const error = createErrorMessage('画像の読み込みに失敗しました');
+            const error = createErrorMessage(chrome.i18n.getMessage('imageLoadError'));
             this.imageContainer.appendChild(error);
         });
 
@@ -233,7 +233,7 @@ export class Modal {
 
             // Show error message
             const errorMsg = createErrorMessage(
-                error.message || 'EXIF データの読み込みに失敗しました'
+                error.message || chrome.i18n.getMessage('exifLoadError')
             );
             this.exifContainer.appendChild(errorMsg);
         }

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ja">
+<html>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -274,21 +274,21 @@
                 <circle cx="12" cy="12.5" r="3.2" stroke="white" stroke-width="1.6"/>
             </svg>
         </span>
-        <h1>EXIF Viewer</h1>
+        <h1 data-i18n="popupTitle">EXIF Viewer</h1>
     </div>
 
     <div class="controls">
         <div class="control-row">
-            <label for="maxImages">表示件数</label>
+            <label for="maxImages" data-i18n="maxImagesLabel">Max results</label>
             <input type="number" id="maxImages" value="20" min="1" max="100">
         </div>
 
         <div class="control-row">
-            <label for="sortType">並び順</label>
+            <label for="sortType" data-i18n="sortTypeLabel">Sort by</label>
             <select id="sortType">
-                <option value="0">面積 (H×W)</option>
-                <option value="1">高さ (H)</option>
-                <option value="2">幅 (W)</option>
+                <option value="0" data-i18n="sortByArea">Area (H×W)</option>
+                <option value="1" data-i18n="sortByHeight">Height (H)</option>
+                <option value="2" data-i18n="sortByWidth">Width (W)</option>
             </select>
         </div>
 
@@ -298,7 +298,7 @@
                     <circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2"/>
                     <path d="M21 21l-4.3-4.3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
                 </svg>
-                画像をスキャン
+                <span data-i18n="scanButton">Scan Images</span>
             </button>
         </div>
     </div>
