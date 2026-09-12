@@ -13,14 +13,28 @@ const sortTypeSelect = document.getElementById('sortType');
  * Show loading state
  */
 function showLoading() {
-    imageList.innerHTML = '<div class="loading">画像をスキャン中...</div>';
+    imageList.innerHTML = `
+        <div class="state">
+            <div class="spinner"></div>
+            <span>画像をスキャン中...</span>
+        </div>
+    `;
 }
 
 /**
  * Show empty state
  */
 function showEmpty() {
-    imageList.innerHTML = '<div class="empty">画像が見つかりませんでした</div>';
+    imageList.innerHTML = `
+        <div class="state">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect x="3" y="5" width="18" height="14" rx="2" stroke="currentColor" stroke-width="1.6"/>
+                <circle cx="8.5" cy="10" r="1.5" stroke="currentColor" stroke-width="1.6"/>
+                <path d="M21 15l-5-4-4.5 4-2-1.5L3 17" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <span>画像が見つかりませんでした</span>
+        </div>
+    `;
 }
 
 /**
@@ -47,17 +61,31 @@ function createImageItem(imageData) {
     const item = document.createElement('div');
     item.className = 'image-item';
 
-    const sizeSpan = document.createElement('span');
-    sizeSpan.className = 'image-size';
-    sizeSpan.textContent = `${imageData.height} × ${imageData.width}`;
+    const thumb = document.createElement('img');
+    thumb.className = 'image-thumb';
+    thumb.src = imageData.src;
+    thumb.alt = '';
+    thumb.loading = 'lazy';
+    // Hide the thumbnail gracefully if it fails to load (e.g. blocked by the page's CSP)
+    thumb.addEventListener('error', () => { thumb.style.visibility = 'hidden'; }, { once: true });
+
+    const meta = document.createElement('div');
+    meta.className = 'image-meta';
 
     const nameSpan = document.createElement('span');
     nameSpan.className = 'image-name';
     nameSpan.textContent = imageData.filename;
     nameSpan.title = imageData.src;
 
-    item.appendChild(sizeSpan);
-    item.appendChild(nameSpan);
+    const sizeSpan = document.createElement('span');
+    sizeSpan.className = 'image-size';
+    sizeSpan.textContent = `${imageData.width} × ${imageData.height}`;
+
+    meta.appendChild(nameSpan);
+    meta.appendChild(sizeSpan);
+
+    item.appendChild(thumb);
+    item.appendChild(meta);
 
     // Click handler
     item.addEventListener('click', () => {
@@ -161,10 +189,11 @@ function init() {
         }
     });
 
-    // Sort type change
+    // Sort type change: save the preference and re-scan if a result list is already shown
     sortTypeSelect.addEventListener('change', () => {
-        if (imageList.children.length > 0 && !imageList.querySelector('.empty, .loading, .error')) {
-            // Re-scan with new sort type
+        chrome.storage.sync.set({ sortType: sortTypeSelect.value });
+
+        if (imageList.children.length > 0 && !imageList.querySelector('.state, .error')) {
             scanImages();
         }
     });
@@ -182,10 +211,6 @@ function init() {
     // Save preferences on change
     maxImagesInput.addEventListener('change', () => {
         chrome.storage.sync.set({ maxImages: maxImagesInput.value });
-    });
-
-    sortTypeSelect.addEventListener('change', () => {
-        chrome.storage.sync.set({ sortType: sortTypeSelect.value });
     });
 }
 

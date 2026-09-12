@@ -22,6 +22,7 @@ import {
     createErrorMessage,
 } from './exif-display.js';
 
+const MODAL_HOST_ID = 'exif-viewer-modal-host';
 const MODAL_CONTAINER_ID = 'exif-viewer-modal-container';
 
 /**
@@ -29,14 +30,14 @@ const MODAL_CONTAINER_ID = 'exif-viewer-modal-container';
  */
 export class Modal {
     constructor() {
+        this.hostEl = null;
+        this.shadowRoot = null;
         this.overlay = null;
         this.container = null;
         this.imageContainer = null;
         this.exifContainer = null;
         this.cleanupFunctions = [];
-
-        // Inject styles on first use
-        injectStyles();
+        this.previouslyFocused = null;
     }
 
     /**
@@ -48,7 +49,12 @@ export class Modal {
         // Remove existing modal if any
         this.hide();
 
-        // Create modal structure
+        // Remember what had focus so we can restore it on close
+        this.previouslyFocused = document.activeElement;
+
+        // Create modal structure inside a shadow root so the host page's
+        // own CSS (resets, `button {}` / `table {}` rules, `!important`
+        // overrides, etc.) can't bleed into it.
         this.createModalStructure();
 
         // Load image
@@ -58,10 +64,13 @@ export class Modal {
         await this.loadExifData(exifLoader);
 
         // Add to DOM
-        document.body.appendChild(this.overlay);
+        document.body.appendChild(this.hostEl);
 
         // Setup event listeners
         this.setupEventListeners();
+
+        // Move keyboard focus into the dialog
+        this.container.focus();
     }
 
     /**
@@ -73,10 +82,18 @@ export class Modal {
         this.cleanupFunctions = [];
 
         // Remove from DOM
-        if (this.overlay && this.overlay.parentNode) {
-            this.overlay.parentNode.removeChild(this.overlay);
+        if (this.hostEl && this.hostEl.parentNode) {
+            this.hostEl.parentNode.removeChild(this.hostEl);
         }
 
+        // Restore focus to whatever triggered the modal
+        if (this.previouslyFocused && typeof this.previouslyFocused.focus === 'function') {
+            this.previouslyFocused.focus();
+        }
+        this.previouslyFocused = null;
+
+        this.hostEl = null;
+        this.shadowRoot = null;
         this.overlay = null;
         this.container = null;
         this.imageContainer = null;
@@ -89,6 +106,17 @@ export class Modal {
     createModalStructure() {
         const portrait = isPortrait();
 
+        // Shadow host: a plain, unstyled element living in the page's DOM.
+        // `all: initial` strips any inherited/cascaded styles from the host
+        // page before they can cross into the shadow tree; `display: contents`
+        // keeps the host element itself from introducing a layout box.
+        this.hostEl = createElement('div', {
+            attrs: { id: MODAL_HOST_ID },
+            styles: { all: 'initial', display: 'contents' },
+        });
+        this.shadowRoot = this.hostEl.attachShadow({ mode: 'open' });
+        injectStyles(this.shadowRoot);
+
         // Create overlay
         this.overlay = createElement('div', {
             attrs: { id: MODAL_CONTAINER_ID },
@@ -98,6 +126,12 @@ export class Modal {
         // Create container
         this.container = createElement('div', {
             styles: portrait ? modalContainerPortraitStyle : modalContainerStyle,
+            attrs: {
+                role: 'dialog',
+                'aria-modal': 'true',
+                'aria-label': 'EXIF情報',
+                tabindex: '-1',
+            },
         });
 
         // Create image container
@@ -120,6 +154,7 @@ export class Modal {
         this.container.appendChild(this.imageContainer);
         this.container.appendChild(this.exifContainer);
         this.overlay.appendChild(this.container);
+        this.shadowRoot.appendChild(this.overlay);
     }
 
     /**
@@ -131,7 +166,7 @@ export class Modal {
             html: '&times;',
             styles: closeButtonStyle,
             attrs: {
-                'aria-label': 'Close',
+                'aria-label': '閉じる',
                 type: 'button',
             },
         });
@@ -228,14 +263,43 @@ export class Modal {
             addEventListener(document, 'keydown', escapeKey)
         );
 
-        // Prevent scrolling of background
+        // Prevent scrolling of background. This listener sits outside the
+        // shadow root, so a composed event's `target` gets retargeted to
+        // `hostEl` — use composedPath() to find the true origin instead.
         const preventScroll = (e) => {
-            if (!this.container.contains(e.target)) {
+            if (!e.composedPath().includes(this.container)) {
                 e.preventDefault();
             }
         };
         this.cleanupFunctions.push(
             addEventListener(document.body, 'wheel', preventScroll, { passive: false })
+        );
+
+        // Basic focus trap: keep Tab cycling within the dialog
+        const trapFocus = (e) => {
+            if (e.key !== 'Tab') {
+                return;
+            }
+            const focusable = this.shadowRoot.querySelectorAll(
+                'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+            );
+            if (focusable.length === 0) {
+                return;
+            }
+            const first = focusable[0];
+            const last = focusable[focusable.length - 1];
+            const active = this.shadowRoot.activeElement;
+
+            if (e.shiftKey && active === first) {
+                e.preventDefault();
+                last.focus();
+            } else if (!e.shiftKey && active === last) {
+                e.preventDefault();
+                first.focus();
+            }
+        };
+        this.cleanupFunctions.push(
+            addEventListener(this.container, 'keydown', trapFocus)
         );
     }
 }

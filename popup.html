@@ -5,6 +5,41 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>EXIF Viewer</title>
     <style>
+        :root {
+            --accent: #6366f1;
+            --accent-hover: #4f46e5;
+            --accent-soft: #eef0ff;
+            --bg: #ffffff;
+            --bg-subtle: #f8f9fc;
+            --border: #e6e8f0;
+            --text: #1f2330;
+            --text-muted: #6b7280;
+            --text-faint: #9aa0ac;
+            --danger-bg: #fdecec;
+            --danger-text: #c0392b;
+            --shadow: 0 1px 2px rgba(16, 24, 40, 0.04);
+            --radius-lg: 14px;
+            --radius-md: 10px;
+            --radius-sm: 8px;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --accent: #818cf8;
+                --accent-hover: #a5b4fc;
+                --accent-soft: rgba(129, 140, 248, 0.16);
+                --bg: #16181f;
+                --bg-subtle: #1c1f28;
+                --border: #2a2e3a;
+                --text: #e6e8f0;
+                --text-muted: #9aa0ac;
+                --text-faint: #6b7280;
+                --danger-bg: rgba(192, 57, 43, 0.15);
+                --danger-text: #f27c6f;
+                --shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+            }
+        }
+
         * {
             margin: 0;
             padding: 0;
@@ -13,175 +48,243 @@
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica', 'Arial', sans-serif;
-            width: 400px;
+            width: 380px;
             min-height: 200px;
-            background-color: #ffffff;
-            color: #333;
+            background-color: var(--bg);
+            color: var(--text);
         }
 
         .header {
-            padding: 16px;
-            background-color: #4a90e2;
-            color: white;
+            padding: 16px 18px;
             display: flex;
             align-items: center;
-            justify-content: space-between;
+            gap: 10px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .header .logo {
+            width: 28px;
+            height: 28px;
+            border-radius: 8px;
+            background: linear-gradient(135deg, var(--accent), #a78bfa);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            flex-shrink: 0;
         }
 
         .header h1 {
-            font-size: 18px;
+            font-size: 15px;
             font-weight: 600;
+            letter-spacing: -0.01em;
         }
 
         .controls {
-            padding: 16px;
-            background-color: #f8f9fa;
-            border-bottom: 1px solid #dee2e6;
+            padding: 14px 18px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
         }
 
         .control-row {
             display: flex;
             align-items: center;
-            gap: 12px;
-            margin-bottom: 12px;
-        }
-
-        .control-row:last-child {
-            margin-bottom: 0;
+            gap: 10px;
         }
 
         label {
-            font-size: 14px;
+            font-size: 12.5px;
             font-weight: 500;
-            min-width: 80px;
+            color: var(--text-muted);
+            min-width: 68px;
         }
 
-        select, input {
+        select, input[type="number"] {
             flex: 1;
-            padding: 6px 10px;
-            border: 1px solid #ced4da;
-            border-radius: 4px;
-            font-size: 14px;
+            padding: 7px 10px;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            font-size: 13px;
+            background-color: var(--bg);
+            color: var(--text);
+            font-family: inherit;
+            transition: border-color 0.15s ease, box-shadow 0.15s ease;
+        }
+
+        select:focus, input[type="number"]:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px var(--accent-soft);
         }
 
         button {
-            padding: 8px 16px;
             border: none;
-            border-radius: 4px;
-            font-size: 14px;
-            font-weight: 500;
+            border-radius: var(--radius-md);
+            font-size: 13.5px;
+            font-weight: 600;
             cursor: pointer;
-            transition: all 0.2s;
+            transition: background-color 0.15s ease, transform 0.1s ease;
+            font-family: inherit;
         }
 
         .btn-primary {
-            background-color: #4a90e2;
+            background-color: var(--accent);
             color: white;
             width: 100%;
+            padding: 10px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
         }
 
         .btn-primary:hover {
-            background-color: #357abd;
+            background-color: var(--accent-hover);
         }
 
         .btn-primary:active {
             transform: scale(0.98);
         }
 
+        .btn-primary svg {
+            flex-shrink: 0;
+        }
+
         .image-list {
-            max-height: 400px;
+            max-height: 420px;
             overflow-y: auto;
+            border-top: 1px solid var(--border);
         }
 
         .image-item {
-            padding: 12px 16px;
-            border-bottom: 1px solid #e9ecef;
+            padding: 10px 18px;
             cursor: pointer;
             display: flex;
-            justify-content: space-between;
             align-items: center;
-            transition: background-color 0.2s;
+            gap: 12px;
+            transition: background-color 0.12s ease;
+        }
+
+        .image-item:not(:last-child) {
+            border-bottom: 1px solid var(--border);
         }
 
         .image-item:hover {
-            background-color: #f8f9fa;
+            background-color: var(--bg-subtle);
         }
 
         .image-item:active {
-            background-color: #e9ecef;
+            background-color: var(--accent-soft);
         }
 
-        .image-size {
-            font-family: 'Courier New', monospace;
-            font-weight: 600;
-            color: #495057;
-            min-width: 120px;
-            text-align: right;
+        .image-thumb {
+            width: 40px;
+            height: 40px;
+            border-radius: var(--radius-sm);
+            object-fit: cover;
+            background-color: var(--bg-subtle);
+            border: 1px solid var(--border);
+            flex-shrink: 0;
+        }
+
+        .image-meta {
+            flex: 1;
+            min-width: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
         }
 
         .image-name {
-            margin-left: 12px;
-            flex: 1;
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
-            font-size: 14px;
-            color: #333;
+            font-size: 13px;
+            color: var(--text);
         }
 
-        .loading {
-            padding: 20px;
-            text-align: center;
-            color: #6c757d;
+        .image-size {
+            font-size: 11.5px;
+            font-weight: 500;
+            color: var(--text-faint);
+            font-variant-numeric: tabular-nums;
         }
 
-        .empty {
-            padding: 40px 20px;
+        .state {
+            padding: 36px 20px;
             text-align: center;
-            color: #adb5bd;
+            color: var(--text-faint);
+            font-size: 13px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .state svg {
+            opacity: 0.5;
+        }
+
+        .spinner {
+            width: 22px;
+            height: 22px;
+            border: 2.5px solid var(--border);
+            border-top-color: var(--accent);
+            border-radius: 50%;
+            animation: spin 0.7s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
         }
 
         .error {
-            padding: 16px;
-            margin: 16px;
-            background-color: #f8d7da;
-            color: #721c24;
-            border-radius: 4px;
-            font-size: 14px;
+            padding: 12px 14px;
+            margin: 14px 18px;
+            background-color: var(--danger-bg);
+            color: var(--danger-text);
+            border-radius: var(--radius-sm);
+            font-size: 13px;
         }
 
-        /* Scrollbar styles */
         .image-list::-webkit-scrollbar {
             width: 8px;
         }
 
         .image-list::-webkit-scrollbar-track {
-            background: #f1f1f1;
+            background: transparent;
         }
 
         .image-list::-webkit-scrollbar-thumb {
-            background: #adb5bd;
+            background: var(--border);
             border-radius: 4px;
         }
 
         .image-list::-webkit-scrollbar-thumb:hover {
-            background: #6c757d;
+            background: var(--text-faint);
         }
     </style>
 </head>
 <body>
     <div class="header">
+        <span class="logo" aria-hidden="true">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M4 7a2 2 0 0 1 2-2h2l1.5-2h5L16 5h2a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V7Z" stroke="white" stroke-width="1.6" stroke-linejoin="round"/>
+                <circle cx="12" cy="12.5" r="3.2" stroke="white" stroke-width="1.6"/>
+            </svg>
+        </span>
         <h1>EXIF Viewer</h1>
     </div>
 
     <div class="controls">
         <div class="control-row">
-            <label for="maxImages">表示件数:</label>
+            <label for="maxImages">表示件数</label>
             <input type="number" id="maxImages" value="20" min="1" max="100">
         </div>
 
         <div class="control-row">
-            <label for="sortType">並び順:</label>
+            <label for="sortType">並び順</label>
             <select id="sortType">
                 <option value="0">面積 (H×W)</option>
                 <option value="1">高さ (H)</option>
@@ -190,7 +293,13 @@
         </div>
 
         <div class="control-row">
-            <button id="scanButton" class="btn-primary">🔍 画像をスキャン</button>
+            <button id="scanButton" class="btn-primary">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2"/>
+                    <path d="M21 21l-4.3-4.3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+                画像をスキャン
+            </button>
         </div>
     </div>
 

@@ -5,10 +5,12 @@
 
 import { createElement, escapeHtml } from './utils.js';
 import {
+    v,
     exifTableStyle,
     exifTableRowStyle,
     exifTableKeyStyle,
     exifTableValueStyle,
+    sectionHeaderStyle,
     errorMessageStyle,
     loadingSpinnerStyle,
 } from './styles.js';
@@ -47,7 +49,7 @@ export function createExifTable(exifData) {
             const noteCell = createElement('td', {
                 text: exifData._note,
                 attrs: { colspan: '2' },
-                styles: { textAlign: 'center', padding: '16px', color: '#666', fontStyle: 'italic' },
+                styles: { textAlign: 'center', padding: '20px', color: v.textMuted, fontStyle: 'italic' },
             });
             noteRow.appendChild(noteCell);
             tbody.appendChild(noteRow);
@@ -67,7 +69,7 @@ export function createExifTable(exifData) {
         const row = createElement('tr', { styles: exifTableRowStyle });
 
         row.addEventListener('mouseenter', () => {
-            row.style.backgroundColor = '#f8f9fa';
+            row.style.backgroundColor = v.bgSubtle;
         });
         row.addEventListener('mouseleave', () => {
             row.style.backgroundColor = '';
@@ -102,28 +104,37 @@ export function createExifTable(exifData) {
 }
 
 /**
+ * Add a section separator row
+ * @param {HTMLElement} tbody
+ * @param {string} label
+ * @param {Object} [accentStyle] - Extra styles layered on top of sectionHeaderStyle
+ */
+function addSectionSeparator(tbody, label, accentStyle = {}) {
+    const separator = createElement('tr');
+    const separatorCell = createElement('td', {
+        attrs: { colspan: '2' },
+        styles: {
+            ...sectionHeaderStyle,
+            borderTop: `1px solid ${v.border}`,
+            ...accentStyle,
+        },
+        text: label,
+    });
+    separator.appendChild(separatorCell);
+    tbody.appendChild(separator);
+}
+
+/**
  * Add metadata section rows
  * @param {HTMLElement} tbody
  * @param {Object} data
  * @param {Array} keys
  */
 function addMetadataRows(tbody, data, keys) {
-    // Add separator
-    const separator = createElement('tr');
-    const separatorCell = createElement('td', {
-        attrs: { colspan: '2' },
-        styles: {
-            borderTop: '2px solid #dee2e6',
-            padding: '8px',
-            backgroundColor: '#fff3cd',
-            fontWeight: '600',
-            fontSize: '0.9em',
-            color: '#856404'
-        },
-        text: 'その他のメタデータ'
+    addSectionSeparator(tbody, 'その他のメタデータ', {
+        backgroundColor: v.warnBg,
+        color: v.warnText,
     });
-    separator.appendChild(separatorCell);
-    tbody.appendChild(separator);
 
     keys.forEach(key => {
         const value = data[key];
@@ -139,22 +150,9 @@ function addMetadataRows(tbody, data, keys) {
  * @param {Object} data
  */
 function addBasicInfoRows(tbody, data) {
-    // Add separator
-    const separator = createElement('tr');
-    const separatorCell = createElement('td', {
-        attrs: { colspan: '2' },
-        styles: {
-            borderTop: '2px solid #dee2e6',
-            padding: '8px',
-            backgroundColor: '#f8f9fa',
-            fontWeight: '600',
-            fontSize: '0.9em',
-            color: '#495057'
-        },
-        text: '画像情報'
+    addSectionSeparator(tbody, '画像情報', {
+        backgroundColor: v.bgSubtle,
     });
-    separator.appendChild(separatorCell);
-    tbody.appendChild(separator);
 
     // File size
     if (data.fileSize) {
@@ -175,7 +173,7 @@ function addInfoRow(tbody, key, value) {
 
     const keyCell = createElement('td', {
         text: key,
-        styles: { ...exifTableKeyStyle, backgroundColor: '#f8f9fa' },
+        styles: { ...exifTableKeyStyle, backgroundColor: v.bgSubtle },
     });
 
     const valueCell = createElement('td', {
@@ -221,7 +219,7 @@ export function createLoadingIndicator() {
             flexDirection: 'column',
             alignItems: 'center',
             justifyContent: 'center',
-            padding: '40px',
+            padding: '48px',
         },
     });
 
@@ -230,7 +228,8 @@ export function createLoadingIndicator() {
         text: 'EXIF データを読み込み中...',
         styles: {
             marginTop: '16px',
-            color: '#666',
+            color: v.textMuted,
+            fontSize: '13.5px',
         },
     });
 
@@ -263,10 +262,11 @@ export function createErrorMessage(message) {
 export function createExifSummary(exifData) {
     const summary = createElement('div', {
         styles: {
-            padding: '16px',
-            backgroundColor: '#f8f9fa',
-            borderRadius: '4px',
-            marginBottom: '16px',
+            padding: '16px 18px',
+            backgroundColor: v.bgSubtle,
+            border: `1px solid ${v.border}`,
+            borderRadius: '10px',
+            marginBottom: '18px',
         },
     });
 
@@ -319,14 +319,14 @@ export function createExifSummary(exifData) {
                 fontWeight: '600',
                 marginRight: '8px',
                 minWidth: '100px',
-                color: '#495057',
+                color: v.textMuted,
             },
         });
 
         const value = createElement('span', {
             text: item.value,
             styles: {
-                color: '#333',
+                color: v.text,
             },
         });
 
@@ -346,11 +346,11 @@ export function createExifSummary(exifData) {
 export function createCommentDisplay(comment) {
     const commentBox = createElement('div', {
         styles: {
-            padding: '16px',
-            backgroundColor: '#e7f3ff',
-            border: '1px solid #2196F3',
-            borderRadius: '4px',
-            marginBottom: '16px',
+            padding: '16px 18px',
+            backgroundColor: v.infoBg,
+            border: `1px solid ${v.infoBorder}`,
+            borderRadius: '10px',
+            marginBottom: '18px',
         },
     });
 
@@ -358,7 +358,7 @@ export function createCommentDisplay(comment) {
         text: 'コメント',
         styles: {
             fontWeight: '600',
-            color: '#1976D2',
+            color: v.infoText,
             marginBottom: '8px',
             fontSize: '0.9em',
         },
@@ -367,7 +367,7 @@ export function createCommentDisplay(comment) {
     const text = createElement('div', {
         text: comment,
         styles: {
-            color: '#333',
+            color: v.text,
             whiteSpace: 'pre-wrap',
             wordBreak: 'break-word',
         },
