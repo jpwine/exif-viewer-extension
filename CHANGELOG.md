@@ -25,6 +25,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Popup redesigned: card-style image rows with thumbnails, refined empty/loading states, consolidated duplicate `change` listener on the sort dropdown.
 - Modal: backdrop blur, softer shadow/radius, `role="dialog"` + `aria-modal`, focus moved into the dialog on open and restored to the trigger on close, basic Tab focus trap.
 
+## [1.1.0] - 2025-11-28
+
+### Added
+- **Complete PNG format support**: new `wasm/parser/png.go`, following the same parser pattern as the WebP parser.
+  - **EXIF**: full TIFF-based tag extraction from `eXIf` chunks, reusing `ParseTIFF()`.
+  - **Text metadata**: `tEXt` (Latin-1), `zTXt` (zlib-compressed Latin-1, auto-decompressed), and `iTXt` (UTF-8, with language tag/translated-keyword support), exposed as `PNG_<keyword>`.
+  - **Image properties**: `IHDR` (`PNG_ImageWidth/Height`, `PNG_BitDepth`, `PNG_ColorType`, `PNG_Interlace`).
+  - **Physical dimensions and timestamp**: `pHYs` (`PNG_PixelsPerUnitX/Y`, `PNG_PixelUnit`) and `tIME` (`PNG_ModifyDate`).
+  - **Color management**: `iCCP` chunk (`PNG_ICCProfile`, `PNG_ICCCompression`) and `sPLT` (suggested palette) chunks.
+  - **Data integrity**: CRC32 validation on every chunk, with warnings (not failures) on mismatches so remaining valid chunks still parse.
+- No new dependencies (still TinyGo/standard-library only): `bytes`, `compress/zlib`, `encoding/binary`, `hash/crc32`, `io`.
+
+### Changed
+- WASM module size: 313KB → 362KB.
+- `manifest.json` version bumped to `1.1.0`.
+
 ## [1.0.1] - 2025-11-23
 
 ### Added
