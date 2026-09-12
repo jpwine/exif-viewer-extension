@@ -76,8 +76,47 @@ async function showExifModal(imageUrl) {
         ui.showModal(imageUrl, exifLoader);
     } catch (error) {
         console.error('Failed to show EXIF modal:', error);
-        alert('EXIF表示エラー: ' + error.message);
+        // This catch fires when even loading the ui/ modules failed, so it
+        // can't rely on them — show a minimal, dependency-free toast instead
+        // of alert(), which blocks the whole page and looks out of place.
+        showFatalErrorToast('EXIF表示エラー: ' + error.message);
     }
+}
+
+/**
+ * Minimal, self-contained error toast (no dependency on ui/ modules).
+ * Rendered in a shadow root so it can't be affected by the host page's CSS.
+ * @param {string} message
+ */
+function showFatalErrorToast(message) {
+    const host = document.createElement('div');
+    host.style.all = 'initial';
+    const root = host.attachShadow({ mode: 'open' });
+    root.innerHTML = `
+        <style>
+            .toast {
+                position: fixed;
+                bottom: 24px;
+                right: 24px;
+                z-index: 2147483647;
+                max-width: 320px;
+                padding: 14px 16px;
+                border-radius: 10px;
+                background: #1f2330;
+                color: #fff;
+                font: 13px/1.5 -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+                animation: slide-in 0.2s ease;
+            }
+            @keyframes slide-in {
+                from { opacity: 0; transform: translateY(8px); }
+                to { opacity: 1; transform: translateY(0); }
+            }
+        </style>
+        <div class="toast" role="alert">${message.replace(/[<>&]/g, (c) => ({ '<': '&lt;', '>': '&gt;', '&': '&amp;' }[c]))}</div>
+    `;
+    document.body.appendChild(host);
+    setTimeout(() => host.remove(), 5000);
 }
 
 /**
