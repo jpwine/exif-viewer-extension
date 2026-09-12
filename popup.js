@@ -16,7 +16,7 @@ function showLoading() {
     imageList.innerHTML = `
         <div class="state">
             <div class="spinner"></div>
-            <span>画像をスキャン中...</span>
+            <span>${chrome.i18n.getMessage('scanningImages')}</span>
         </div>
     `;
 }
@@ -32,7 +32,7 @@ function showEmpty() {
                 <circle cx="8.5" cy="10" r="1.5" stroke="currentColor" stroke-width="1.6"/>
                 <path d="M21 15l-5-4-4.5 4-2-1.5L3 17" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
-            <span>画像が見つかりませんでした</span>
+            <span>${chrome.i18n.getMessage('noImagesFound')}</span>
         </div>
     `;
 }
@@ -119,7 +119,7 @@ function scanImages() {
 
     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
         if (!tabs[0]) {
-            showError('アクティブなタブが見つかりません');
+            showError(chrome.i18n.getMessage('noActiveTab'));
             return;
         }
 
@@ -158,7 +158,7 @@ function scanImages() {
         port.onDisconnect.addListener(() => {
             if (chrome.runtime.lastError) {
                 if (!hasError && images.length === 0) {
-                    showError('ページとの通信に失敗しました');
+                    showError(chrome.i18n.getMessage('communicationFailed'));
                 }
                 hasError = true;
             }
@@ -174,9 +174,25 @@ function scanImages() {
 }
 
 /**
+ * Apply localized strings to elements marked with [data-i18n]
+ */
+function applyI18n() {
+    document.documentElement.lang = chrome.i18n.getUILanguage();
+
+    document.querySelectorAll('[data-i18n]').forEach((el) => {
+        const message = chrome.i18n.getMessage(el.dataset.i18n);
+        if (message) {
+            el.textContent = message;
+        }
+    });
+}
+
+/**
  * Initialize popup
  */
 function init() {
+    applyI18n();
+
     // Scan button click handler
     scanButton.addEventListener('click', () => {
         scanImages();

@@ -131,7 +131,7 @@ function addSectionSeparator(tbody, label, accentStyle = {}) {
  * @param {Array} keys
  */
 function addMetadataRows(tbody, data, keys) {
-    addSectionSeparator(tbody, 'その他のメタデータ', {
+    addSectionSeparator(tbody, chrome.i18n.getMessage('otherMetadata'), {
         backgroundColor: v.warnBg,
         color: v.warnText,
     });
@@ -150,18 +150,18 @@ function addMetadataRows(tbody, data, keys) {
  * @param {Object} data
  */
 function addBasicInfoRows(tbody, data) {
-    addSectionSeparator(tbody, '画像情報', {
+    addSectionSeparator(tbody, chrome.i18n.getMessage('imageInfo'), {
         backgroundColor: v.bgSubtle,
     });
 
     // File size
     if (data.fileSize) {
-        addInfoRow(tbody, 'ファイルサイズ', formatFileSize(data.fileSize));
+        addInfoRow(tbody, chrome.i18n.getMessage('fileSizeLabel'), formatFileSize(data.fileSize));
     }
 
     // MIME type
     if (data.mimeType) {
-        addInfoRow(tbody, 'MIMEタイプ', data.mimeType);
+        addInfoRow(tbody, chrome.i18n.getMessage('mimeTypeLabel'), data.mimeType);
     }
 }
 
@@ -225,7 +225,7 @@ export function createLoadingIndicator() {
 
     const spinner = createElement('div', { styles: loadingSpinnerStyle });
     const text = createElement('p', {
-        text: 'EXIF データを読み込み中...',
+        text: chrome.i18n.getMessage('loadingExifData'),
         styles: {
             marginTop: '16px',
             color: v.textMuted,
@@ -248,7 +248,7 @@ export function createErrorMessage(message) {
     return createElement('div', {
         styles: errorMessageStyle,
         html: `
-            <strong>エラー:</strong>
+            <strong>${escapeHtml(chrome.i18n.getMessage('errorLabel'))}</strong>
             <p style="margin: 8px 0 0 0;">${escapeHtml(message)}</p>
         `,
     });
@@ -275,30 +275,30 @@ export function createExifSummary(exifData) {
     // Camera info
     if (exifData.Make || exifData.Model) {
         const camera = [exifData.Make, exifData.Model].filter(Boolean).join(' ');
-        items.push({ label: 'カメラ', value: camera });
+        items.push({ label: chrome.i18n.getMessage('summaryCamera'), value: camera });
     }
 
     // Date taken
     if (exifData.DateTimeOriginal || exifData.DateTime) {
         const date = exifData.DateTimeOriginal || exifData.DateTime;
-        items.push({ label: '撮影日時', value: date });
+        items.push({ label: chrome.i18n.getMessage('summaryDateTaken'), value: date });
     }
 
     // Exposure settings
     if (exifData.ExposureTime && exifData.FNumber && exifData.ISO) {
         const exposure = `${exifData.ExposureTime}s, f/${exifData.FNumber}, ISO ${exifData.ISO}`;
-        items.push({ label: '露出設定', value: exposure });
+        items.push({ label: chrome.i18n.getMessage('summaryExposure'), value: exposure });
     }
 
     // Focal length
     if (exifData.FocalLength) {
-        items.push({ label: '焦点距離', value: exifData.FocalLength + 'mm' });
+        items.push({ label: chrome.i18n.getMessage('summaryFocalLength'), value: exifData.FocalLength + 'mm' });
     }
 
     // GPS
     if (exifData.GPSLatitude && exifData.GPSLongitude) {
         const gps = `${exifData.GPSLatitude}, ${exifData.GPSLongitude}`;
-        items.push({ label: 'GPS座標', value: gps });
+        items.push({ label: chrome.i18n.getMessage('summaryGpsCoordinates'), value: gps });
     }
 
     if (items.length === 0) {
@@ -355,7 +355,7 @@ export function createCommentDisplay(comment) {
     });
 
     const header = createElement('div', {
-        text: 'コメント',
+        text: chrome.i18n.getMessage('commentLabel'),
         styles: {
             fontWeight: '600',
             color: v.infoText,

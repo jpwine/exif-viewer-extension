@@ -22,6 +22,7 @@ zip -r extension.zip \
     popup.html \
     popup.js \
     ui/ \
+    _locales/ \
     wasm/exif-parser.wasm \
     wasm/wasm_exec.js \
     wasm/loader.js \

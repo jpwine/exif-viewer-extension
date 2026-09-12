@@ -79,7 +79,7 @@ async function showExifModal(imageUrl) {
         // This catch fires when even loading the ui/ modules failed, so it
         // can't rely on them — show a minimal, dependency-free toast instead
         // of alert(), which blocks the whole page and looks out of place.
-        showFatalErrorToast('EXIF表示エラー: ' + error.message);
+        showFatalErrorToast(chrome.i18n.getMessage('exifDisplayError', [error.message]));
     }
 }
 
